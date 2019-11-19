@@ -1,0 +1,169 @@
+.000755 001750 001750 00000000000 13564756573 007361 5ustar00000000 000000 postgres-deployment.yml000644 001750 001750 00000000727 13564334121 014035 0ustar00000000 000000 apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+  labels:
+    app: demo-voting-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        name: postgres-pod
+        app: demo-voting-app
+  template:
+    metadata:
+       name: postgres-pod
+       labels:
+          name: postgres-pod
+          app: demo-voting-app
+    spec:
+      containers:
+       - name: postgres
+         image: postgres:9.4
+         ports:
+           - containerPort: 5432postgres-service.yml000644 001750 001750 00000000360 13564760000 013305 0ustar00000000 000000 apiVersion: v1
+kind: Service
+metadata: 
+    name: db
+    labels: 
+       name: db-service
+       app: demo-voting-app
+spec:
+  ports:
+     - port: 5432
+       targetPort: 5432
+  selector:
+       name: postgres-pod
+       app: demo-voting-appredis-deployment.yml000644 001750 001750 00000000721 13564322445 013275 0ustar00000000 000000 apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  labels:
+    app: demo-voting-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        name: redis-pod
+        app: demo-voting-app
+  template:
+    metadata:
+       name: redis-pod
+       labels:
+           name: redis-pod
+           app: demo-voting-app
+    spec:
+        containers:
+          - name: redis
+            image: redis
+            ports:
+              - containerPort: 6379redis-service.yml000644 001750 001750 00000000361 13564241222 012546 0ustar00000000 000000 apiVersion: v1
+kind: Service
+metadata: 
+    name: redis
+    labels: 
+       name: redis-service
+       app: demo-voting-app
+spec:
+  ports:
+     - port: 6379
+       targetPort: 6379
+  selector:
+      name: redis-pod
+      app: demo-voting-appresult-app-service.yml000644 001750 001750 00000000422 13564757504 013551 0ustar00000000 000000 apiVersion: v1
+kind: Service
+metadata: 
+    name: result-service
+    labels: 
+       name: result-service
+       app: demo-voting-app
+spec:
+  type: LoadBalancer
+  ports:
+     - port: 80
+       targetPort: 80
+  selector:
+      name: result-app-pod
+      app: demo-voting-app
+result-app.yml000644 001750 001750 00000001007 13564331261 012077 0ustar00000000 000000 apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: result-app-deployment
+  labels:
+    app: demo-voting-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        name: result-app-pod
+        app: demo-voting-app
+  template:
+    metadata:
+        name: result-app-pod
+        labels:
+            name: result-app-pod
+            app: demo-voting-app
+    spec:
+        containers:
+         - name: result-app
+           image: dockersamples/examplevotingapp_result
+           ports:
+            - containerPort: 80voting-app-deployment.yml000644 001750 001750 00000000763 13564757150 014266 0ustar00000000 000000 apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: voting-app-deployment
+  labels:
+    app: demo-voting-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        name: voting-app-pod
+        app: demo-voting-app
+  template:
+    metadata:
+       name: voting-app-pod
+       labels:
+        name: voting-app-pod
+        app: demo-voting-app
+    spec:
+       containers:
+       - name: voting-app
+         image: dockersamples/examplevotingapp_vote
+         ports:
+           - containerPort: 80voting-app-service.yml000644 001750 001750 00000000421 13564334141 013524 0ustar00000000 000000 apiVersion: v1
+kind: Service
+metadata: 
+    name: voting-service
+    labels: 
+       name: voting-service
+       app: demo-voting-app
+spec:
+  type: LoadBalancer
+  ports:
+     - port: 80
+       targetPort: 80
+  selector:
+      name: voting-app-pod
+      app: demo-voting-appworker-deployment.yml000644 001750 001750 00000000717 13564330610 013476 0ustar00000000 000000 apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-app-deployment
+  labels:
+    app: demo-voting-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        name: worker-app-pod
+        app: demo-voting-app
+  template:
+    metadata:
+       name: worker-app-pod
+       labels:
+          name: worker-app-pod
+          app: demo-voting-app
+    spec:
+        containers:
+         - name: worker-app
+           image: dockersamples/examplevotingapp_worker
